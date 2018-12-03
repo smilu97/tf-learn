@@ -5,6 +5,7 @@ MNIST Dataset
 import os
 import numpy as np
 import pandas as pd
+import gzip
 from urllib import request
 
 url_train_images = 'http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz'
@@ -37,22 +38,22 @@ def select_xy(arr):
     return arr[:,:4], arr[:,4]
 
 def read_label(path):
-    with open(path, 'rb') as fd:
-        magic = np.frombuffer(fd.read(4), np.int32)[0]
+    with gzip.open(path, 'rb') as fd:
+        magic = np.frombuffer(fd.read(4), '>u4')[0]
         assert(magic == 2049)
-        num = np.frombuffer(fd.read(4), np.int32)[0]
-        labels = np.frombuffer(fd.read(), np.uint8)
+        num = np.frombuffer(fd.read(4), '>u4')[0]
+        labels = np.frombuffer(fd.read(), '>u1')
         assert(len(labels) == num)
     return labels
 
 def read_images(path):
-    with open(path, 'rb') as fd:
-        magic = np.frombuffer(fd.read(4), np.int32)[0]
+    with gzip.open(path, 'rb') as fd:
+        magic = np.frombuffer(fd.read(4), '>u4')[0]
         assert(magic == 2051)
-        num = np.frombuffer(fd.read(4), np.int32)
-        nrows = np.frombuffer(fd.read(4), np.int32)
-        ncols = np.frombuffer(fd.read(4), np.int32)
-        pixels = np.frombuffer(fd.read(), np.uint8)
+        num = np.frombuffer(fd.read(4), '>u4')[0]
+        nrows = np.frombuffer(fd.read(4), '>u4')[0]
+        ncols = np.frombuffer(fd.read(4), '>u4')[0]
+        pixels = np.frombuffer(fd.read(), '>u1')
         images = np.reshape(pixels, (num, nrows, ncols))
     return images
 
