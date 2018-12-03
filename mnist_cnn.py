@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-MNIST classification with logistic regression
+MNIST classification with CNN, logistitc regression
 '''
 
 from dataset.mnist import get as get_mnist
