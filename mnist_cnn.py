@@ -7,6 +7,7 @@ from dataset.mnist import get as get_mnist
 import numpy as np
 import tensorflow as tf
 import progressbar as pbar
+import math
 
 def mini_batch(n, *arg):
     for l in range(0, len(arg[0]), n):
@@ -22,6 +23,10 @@ def main():
 
     train_x = np.reshape(train_x, (-1, 28, 28, 1))
     test_x = np.reshape(test_x, (-1, 28, 28, 1))
+
+    epoch = 3
+    batch_size = 1000
+    batch_num = math.ceil(len(train_x) / batch_size)
 
     with tf.Session() as sess:
 
@@ -44,16 +49,20 @@ def main():
         loss = tf.losses.sparse_softmax_cross_entropy(label_y, logits)
         minimize = tf.train.AdamOptimizer().minimize(loss)
 
+        saver = tf.train.Saver()
+
         sess.run(tf.global_variables_initializer()) # Initialize variables
 
-        for _ in range(1000):
+        for _ in range(epoch):
             # My macbook burst!
-            for batch_x, batch_y in pbar.progressbar(mini_batch(1000, train_x, train_y)):
+            for batch_x, batch_y in pbar.progressbar(mini_batch(1000, train_x, train_y), max_value=batch_num):
                 sess.run(minimize, {input_x: batch_x, label_y: batch_y, is_training: True})
             # Test
             pred = sess.run(pred_y, {input_x: test_x, is_training: False})
             acc = np.sum(pred == test_y) / len(test_y)
             print('acc:', acc)
+        
+        saver.save(sess, 'mnist_cnn', global_step=10)
 
 if __name__ == "__main__":
     main()
