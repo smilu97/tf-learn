@@ -4,3 +4,6 @@ venv/
 *.csv
 *.pyc
 *.gz
+*.meta
+*.index
+*.checkpoint
