@@ -6,4 +6,4 @@ venv/
 *.gz
 *.meta
 *.index
-*.checkpoint
+save/*/
