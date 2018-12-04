@@ -33,8 +33,8 @@ def main():
         # Build model
         input_x = tf.placeholder(tf.float32, (None, 28, 28, 1), 'input_x')
         label_y = tf.placeholder(tf.int32, (None,), 'label_y')
-        is_training = tf.placeholder(tf.bool)
-        enc_label_y = tf.one_hot(label_y, 10)
+        is_training = tf.placeholder(tf.bool, name='is_training')
+        enc_label_y = tf.one_hot(label_y, 10, name='enc_label_y')
 
         h_conv0 = tf.layers.conv2d(input_x, 32, (5, 5), padding='same', activation=tf.nn.relu)
         h_pool0 = tf.layers.max_pooling2d(h_conv0, (2, 2), 2)
@@ -43,16 +43,18 @@ def main():
         flat = tf.reshape(h_pool1, [-1, 49*64])
         h_dense0 = tf.layers.dense(flat, 1024, tf.nn.relu)
         h_dense0_drop = tf.layers.dropout(h_dense0, 0.4, training=is_training)
-        logits = tf.layers.dense(h_dense0_drop, 10)
-        pred_y = tf.argmax(logits, 1)
+        logits = tf.layers.dense(h_dense0_drop, 10, name='logits')
+        pred_y = tf.argmax(logits, 1, name='pred_y')
 
         loss = tf.losses.sparse_softmax_cross_entropy(label_y, logits)
         minimize = tf.train.AdamOptimizer().minimize(loss)
 
         saver = tf.train.Saver()
 
-        sess.run(tf.global_variables_initializer()) # Initialize variables
-
+         # Initialize variables
+        try: saver.restore(sess, tf.train.latest_checkpoint('save/mnist_cnn'))
+        except: sess.run(tf.global_variables_initializer())
+        
         for _ in range(epoch):
             # My macbook burst!
             for batch_x, batch_y in pbar.progressbar(mini_batch(1000, train_x, train_y), max_value=batch_num):
@@ -61,8 +63,7 @@ def main():
             pred = sess.run(pred_y, {input_x: test_x, is_training: False})
             acc = np.sum(pred == test_y) / len(test_y)
             print('acc:', acc)
-        
-        saver.save(sess, 'mnist_cnn', global_step=10)
+            saver.save(sess, 'save/mnist_cnn/mnist_cnn')
 
 if __name__ == "__main__":
     main()
