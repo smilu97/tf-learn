@@ -7,3 +7,5 @@ venv/
 *.meta
 *.index
 save/*/
+tsp*.zip
+tsp*.txt

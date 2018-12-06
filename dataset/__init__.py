@@ -6,6 +6,9 @@ import requests
 import progressbar as pbar
 
 def download_from_gdrive(file_id, pathname):
+    '''
+    Download file from GDRIVE
+    '''
     GDRIVE_URL = 'https://docs.google.com/uc?export=download'
 
     sess = requests.Session()
